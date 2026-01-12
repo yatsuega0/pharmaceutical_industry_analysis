@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "pharmaceutical-industry-analysis"
+version = "0.1.0"
+description = "製薬業界財務データ分析プロジェクト"
+authors = ["ega0_82"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+jupyterlab = "*"
+pandas = "*"
+numpy = "*"
+matplotlib = "*"
+seaborn = "*"
+scipy = "*"
+jupyterlab-code-formatter = "*"
+jupyterlab-execute-time = "*"
+black = "*"
+isort = "*"
+japanize-matplotlib = "*"
+pyarrow = "*"
+scikit-learn = "*"
+sweetviz = "*"
+plotly = "*"
+lightgbm = "*"
+stl = "*"
+numpy-stl = "*"
+catboost = "*"
+optuna = "*"
+xgboost = "*"
+openpyxl = "*"
+tabulate = "*"
+adjusttext = "*"
+statsmodels = "*"
+pytest = "*"
+
+
+[tool.poetry.group.dev.dependencies]
+notebook = "^7.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
