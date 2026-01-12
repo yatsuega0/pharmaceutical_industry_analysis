@@ -33,6 +33,7 @@ tabulate = "*"
 adjusttext = "*"
 statsmodels = "*"
 pytest = "*"
+dvc = "*"
 
 
 [tool.poetry.group.dev.dependencies]
