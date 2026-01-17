@@ -1,14 +1,14 @@
 # %%[markdown]
 # # 分析①：ポジショニング分析（規模 × 効率）
-# 
+#
 # ## 目的
 # - 13社を「事業規模（売上・資産）」と「収益性/効率（ROA/ROE/利益率）」で配置し、
 #   業界内の立ち位置を可視化する
-# 
+#
 # ### 仮説
 # - **H1-1**: 事業規模（売上高・総資産）が大きい企業が必ずしも高ROA/高ROEではない
 # - **H1-2**: 中規模でもROAが高い企業群が存在し、資産効率/研究効率の差が示唆される
-# 
+#
 # ### 実施内容
 # 1. データの読み込みと前処理
 # 2. 財務指標の計算
@@ -20,16 +20,13 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import japanize_matplotlib
+import japanize_matplotlib  # noqa: F401
 
 # プロジェクトルートをパスに追加
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from modules import io, preprocess, metrics, viz, report
+from modules import io, metrics, preprocess, report, viz
 
 # %%[markdown]
 # ### データの読み込みと前処理
@@ -49,17 +46,22 @@ print(f"\n列名: {df.columns.tolist()}")
 # %%
 # 必須列の確認
 required_cols = [
-    "証券コード", "企業名", "売上高", "営業利益", "当期純利益",
-    "総資産", "自己資本", "ROA", "ROE"
+    "証券コード",
+    "企業名",
+    "売上高",
+    "営業利益",
+    "当期純利益",
+    "総資産",
+    "自己資本",
+    "ROA",
+    "ROE",
 ]
 
 preprocess.validate_columns(df, required_cols)
 
 # %%
 # 数値列の型変換
-numeric_cols = [
-    "売上高", "営業利益", "当期純利益", "総資産", "自己資本", "ROA", "ROE"
-]
+numeric_cols = ["売上高", "営業利益", "当期純利益", "総資産", "自己資本", "ROA", "ROE"]
 
 df = preprocess.coerce_numeric(df, numeric_cols)
 print(df.shape)
@@ -95,8 +97,18 @@ df.head()
 # %%
 # 主要指標のテーブルを保存
 output_cols = [
-    "証券コード", "企業名", "売上高", "総資産", "営業利益", "当期純利益",
-    "ROA", "ROE", "営業利益率", "当期純利益率", "自己資本比率", "総資産回転率"
+    "証券コード",
+    "企業名",
+    "売上高",
+    "総資産",
+    "営業利益",
+    "当期純利益",
+    "ROA",
+    "ROE",
+    "営業利益率",
+    "当期純利益率",
+    "自己資本比率",
+    "総資産回転率",
 ]
 
 df_output = df[output_cols].copy()
@@ -118,7 +130,7 @@ viz.create_scatter_plot(
     y_label="ROA（%）",
     annotate=True,
     company_col="企業名",
-    log_x=True  # 総資産は桁が大きいため対数スケール
+    log_x=True,  # 総資産は桁が大きいため対数スケール
 )
 
 # %%[markdown]
@@ -136,7 +148,7 @@ viz.create_scatter_plot(
     y_label="ROE（%）",
     annotate=True,
     company_col="企業名",
-    log_x=True  # 売上高は桁が大きいため対数スケール
+    log_x=True,  # 売上高は桁が大きいため対数スケール
 )
 
 # %%[markdown]
@@ -155,7 +167,7 @@ viz.create_bubble_chart(
     y_label="ROA（%）",
     annotate=True,
     company_col="企業名",
-    size_scale=0.5
+    size_scale=0.5,
 )
 
 # %%[markdown]
@@ -187,7 +199,7 @@ for company, value in roe_top_bottom["bottom"]:
 # %%[markdown]
 # ---
 # ### 結果の確認と考察の記載
-# 
+#
 # **ここで一旦、以下の結果を確認してください：**
 # - 生成されたグラフ（総資産 vs ROA、売上高 vs ROE、バブル図）
 # - ROA/ROEの上位・下位企業
@@ -195,7 +207,7 @@ for company, value in roe_top_bottom["bottom"]:
 
 # %%
 # TODO: グラフと数値を確認した上で、観察された事実を記載してください
-# 
+#
 # 記載方法の注意：
 # - 各文字列の後に必ずカンマ(,)を付ける
 # - セクション間に空行を入れたい場合は空文字列 "" を追加
@@ -217,20 +229,18 @@ for company, value in roe_top_bottom["bottom"]:
 # ]
 # %%
 observations = [
-"### ① 企業ポジショニング（売上高 × ROA × 総資産）",
-"売上・総資産が最大規模の企業（武田薬品工業、アステラス製薬）は、ROAが相対的に低位に位置しており、規模拡大と資産効率の乖離が確認できる。",
-"中外製薬は中規模でありながらROAが突出して高く、業界内でも資産効率に優れたポジションにある。",
-"**深掘り点**：固定資産・研究開発資産の構成や外注比率の違いが、企業間のROA差にどの程度影響しているかを確認する必要がある。",
-
-"### ② 売上高とROEの関係",
-"売上規模が最大の武田薬品工業はROEが低水準に留まり、売上規模と株主資本利益率が直結していないことが示されている。",
-"中外製薬や第一三共は売上規模に対して高いROEを示し、株主資本の活用効率が高い企業群として位置づけられる。",
-"**深掘り点**：財務レバレッジや自己資本比率の違いがROE水準に与える影響を併せて確認する必要がある。",
-
-"### ③ 総資産とROAの関係",
-"総資産が大きい企業ほどROAが低下する傾向が見られ、資産規模拡大に伴う効率低下が示唆される。",
-"中外製薬や塩野義製薬は総資産が中位でありながら高ROAを維持しており、資産運用の効率性が際立っている。",
-"**深掘り点**：総資産回転率や無形資産比率の差異が、ROAの企業間格差をどのように生んでいるかを検討する余地がある。",
+    "### ① 企業ポジショニング（売上高 × ROA × 総資産）",
+    "売上・総資産が最大規模の企業（武田薬品工業、アステラス製薬）は、ROAが相対的に低位に位置しており、規模拡大と資産効率の乖離が確認できる。",
+    "中外製薬は中規模でありながらROAが突出して高く、業界内でも資産効率に優れたポジションにある。",
+    "**深掘り点**：固定資産・研究開発資産の構成や外注比率の違いが、企業間のROA差にどの程度影響しているかを確認する必要がある。",
+    "### ② 売上高とROEの関係",
+    "売上規模が最大の武田薬品工業はROEが低水準に留まり、売上規模と株主資本利益率が直結していないことが示されている。",
+    "中外製薬や第一三共は売上規模に対して高いROEを示し、株主資本の活用効率が高い企業群として位置づけられる。",
+    "**深掘り点**：財務レバレッジや自己資本比率の違いがROE水準に与える影響を併せて確認する必要がある。",
+    "### ③ 総資産とROAの関係",
+    "総資産が大きい企業ほどROAが低下する傾向が見られ、資産規模拡大に伴う効率低下が示唆される。",
+    "中外製薬や塩野義製薬は総資産が中位でありながら高ROAを維持しており、資産運用の効率性が際立っている。",
+    "**深掘り点**：総資産回転率や無形資産比率の差異が、ROAの企業間格差をどのように生んでいるかを検討する余地がある。",
 ]
 
 # %%[markdown]
@@ -240,8 +250,7 @@ observations = [
 # %%
 # 基本統計量
 summary_stats = report.generate_summary_stats(
-    df,
-    cols=["売上高", "総資産", "ROA", "ROE", "営業利益率", "当期純利益率"]
+    df, cols=["売上高", "総資産", "ROA", "ROE", "営業利益率", "当期純利益率"]
 )
 
 # メタデータ
@@ -251,7 +260,7 @@ metadata = report.create_analysis_metadata(
     target_year="2024年度",
     used_columns=required_cols,
     created_metrics=["営業利益率", "当期純利益率", "自己資本比率", "総資産回転率"],
-    missing_strategy="警告のみ（除外なし）"
+    missing_strategy="警告のみ（除外なし）",
 )
 
 # データ品質レポート
@@ -263,41 +272,26 @@ roe_summary = report.format_top_bottom_summary(roe_top_bottom, "ROE")
 
 # Markdownレポート作成
 sections = [
-    {
-        "heading": "分析メタデータ",
-        "content": metadata
-    },
-    {
-        "heading": "データ品質",
-        "content": quality_report
-    },
+    {"heading": "分析メタデータ", "content": metadata},
+    {"heading": "データ品質", "content": quality_report},
     {
         "heading": "主要指標の基本統計量",
-        "content": summary_stats.to_markdown(index=False)
+        "content": summary_stats.to_markdown(index=False),
     },
-    {
-        "heading": "ROA上位・下位企業",
-        "content": roa_summary
-    },
-    {
-        "heading": "ROE上位・下位企業",
-        "content": roe_summary
-    },
-    {
-        "heading": "観察事項",
-        "content": observations
-    }
+    {"heading": "ROA上位・下位企業", "content": roa_summary},
+    {"heading": "ROE上位・下位企業", "content": roe_summary},
+    {"heading": "観察事項", "content": observations},
 ]
 
 report.create_markdown_summary(
     output_path=str(project_root / "output" / "01_summary.md"),
     title="分析①：ポジショニング分析（規模 × 効率）",
-    sections=sections
+    sections=sections,
 )
 
 # %%[markdown]
 # ### 分析完了
-# 
+#
 # 以下のファイルが生成されました：
 # - `output/01_positioning_table.xlsx`: 主要指標のテーブル
 # - `output/fig_01_roa_vs_assets.png`: 総資産とROAの散布図

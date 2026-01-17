@@ -1,13 +1,13 @@
 # %%[markdown]
 # # 分析②：収益性分解
-# 
+#
 # ## 目的
 # - 本業（営業利益）と最終利益（純利益）の差を比較し、利益の質を把握する
-# 
+#
 # ### 仮説
 # - **H2-1**: 営業利益率が高いが当期純利益率が低い企業は、特別損益・金融費用・税負担などの影響が相対的に大きい
 # - **H2-2**: 営業利益率と当期純利益率が近い企業ほど、利益構造が安定的で説明しやすい
-# 
+#
 # ### 実施内容
 # 1. データの読み込みと前処理
 # 2. 営業利益率・当期純利益率の計算
@@ -19,16 +19,14 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-import numpy as np
+import japanize_matplotlib  # noqa: F401
 import matplotlib.pyplot as plt
-import japanize_matplotlib
 
 # プロジェクトルートをパスに追加
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from modules import io, preprocess, metrics, viz, report
+from modules import io, metrics, preprocess, report, viz
 
 # %%[markdown]
 # ### データの読み込みと前処理
@@ -46,9 +44,7 @@ print(f"読み込んだデータ: {df.shape}")
 
 # %%
 # 必須列の確認
-required_cols = [
-    "証券コード", "企業名", "売上高", "営業利益", "当期純利益"
-]
+required_cols = ["証券コード", "企業名", "売上高", "営業利益", "当期純利益"]
 
 preprocess.validate_columns(df, required_cols)
 
@@ -82,8 +78,14 @@ print(df.shape)
 # %%
 # 利益率テーブルを保存
 output_cols = [
-    "証券コード", "企業名", "売上高", "営業利益", "当期純利益",
-    "営業利益率", "当期純利益率", "利益率差分"
+    "証券コード",
+    "企業名",
+    "売上高",
+    "営業利益",
+    "当期純利益",
+    "営業利益率",
+    "当期純利益率",
+    "利益率差分",
 ]
 
 df_output = df[output_cols].copy()
@@ -107,7 +109,7 @@ viz.create_bar_chart(
     output_path=str(project_root / "output" / "fig_02_margins_by_company.png"),
     title="企業別の営業利益率・当期純利益率",
     y_label="利益率（%）",
-    figsize=(14, 6)
+    figsize=(14, 6),
 )
 
 # %%[markdown]
@@ -135,7 +137,7 @@ for _, row in df_plot.iterrows():
         xytext=(5, 5),
         textcoords="offset points",
         fontsize=8,
-        alpha=0.7
+        alpha=0.7,
     )
 
 # ラベルとタイトル
@@ -146,7 +148,9 @@ ax.legend()
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(project_root / "output" / "fig_02_opm_vs_npm.png", dpi=150, bbox_inches="tight")
+plt.savefig(
+    project_root / "output" / "fig_02_opm_vs_npm.png", dpi=150, bbox_inches="tight"
+)
 plt.show()
 
 print("散布図を保存しました: output/fig_02_opm_vs_npm.png")
@@ -196,14 +200,14 @@ for company, value in npm_top_bottom["bottom"]:
 # %%[markdown]
 # ---
 # ### 結果の確認と考察の記載
-# 
+#
 # **ここで一旦、以下の結果を確認してください：**
 # - 生成されたグラフ（営業利益率 vs 当期純利益率、棒グラフ）
 # - 利益率差分、営業利益率、当期純利益率の上位・下位企業
 
 # %%
 # TODO: グラフと数値を確認した上で、観察された事実を記載してください
-# 
+#
 # 記載方法の注意：
 # - 各文字列の後に必ずカンマ(,)を付ける
 # - セクション間に空行を入れたい場合は空文字列 "" を追加
@@ -229,7 +233,7 @@ observations = [
     "差分下位（塩野義製薬・アステラス製薬・エーザイ）は、営業利益と当期純利益が近く、構造的に安定的。",
     "#### 仮説に対する評価",
     "**H2-1**：営業利益率が高い企業ほど差分が拡大するケースが確認され、仮説は概ね支持される。",
-    "**H2-2**：両利益率が近い企業は分布上も安定しており、利益構造が説明しやすい点で仮説は妥当。"
+    "**H2-2**：両利益率が近い企業は分布上も安定しており、利益構造が説明しやすい点で仮説は妥当。",
 ]
 
 # %%[markdown]
@@ -239,8 +243,7 @@ observations = [
 # %%
 # 基本統計量
 summary_stats = report.generate_summary_stats(
-    df,
-    cols=["営業利益率", "当期純利益率", "利益率差分"]
+    df, cols=["営業利益率", "当期純利益率", "利益率差分"]
 )
 print(summary_stats)
 
@@ -251,58 +254,45 @@ metadata = report.create_analysis_metadata(
     target_year="2024年度",
     used_columns=required_cols,
     created_metrics=["営業利益率", "当期純利益率", "利益率差分"],
-    missing_strategy="警告のみ（除外なし）"
+    missing_strategy="警告のみ（除外なし）",
 )
 
 # データ品質レポート
 quality_report = report.create_data_quality_report(df, required_cols)
 
 # 各指標の上位下位のフォーマット
-margin_gap_summary = report.format_top_bottom_summary(margin_gap_top_bottom, "利益率差分")
+margin_gap_summary = report.format_top_bottom_summary(
+    margin_gap_top_bottom, "利益率差分"
+)
 opm_summary = report.format_top_bottom_summary(opm_top_bottom, "営業利益率")
 npm_summary = report.format_top_bottom_summary(npm_top_bottom, "当期純利益率")
 
 # Markdownレポート作成
 sections = [
-    {
-        "heading": "分析メタデータ",
-        "content": metadata
-    },
-    {
-        "heading": "データ品質",
-        "content": quality_report
-    },
+    {"heading": "分析メタデータ", "content": metadata},
+    {"heading": "データ品質", "content": quality_report},
     {
         "heading": "利益率の基本統計量",
-        "content": summary_stats.to_markdown(index=False)
+        "content": summary_stats.to_markdown(index=False),
     },
     {
         "heading": "利益率差分（営業利益率 - 当期純利益率）",
-        "content": margin_gap_summary
+        "content": margin_gap_summary,
     },
-    {
-        "heading": "営業利益率",
-        "content": opm_summary
-    },
-    {
-        "heading": "当期純利益率",
-        "content": npm_summary
-    },
-    {
-        "heading": "観察事項",
-        "content": observations
-    }
+    {"heading": "営業利益率", "content": opm_summary},
+    {"heading": "当期純利益率", "content": npm_summary},
+    {"heading": "観察事項", "content": observations},
 ]
 
 report.create_markdown_summary(
     output_path=str(project_root / "output" / "02_summary.md"),
     title="分析②：収益性分解",
-    sections=sections
+    sections=sections,
 )
 
 # %%[markdown]
 # ### 分析完了
-# 
+#
 # 以下のファイルが生成されました：
 # - `output/02_margin_table.xlsx`: 利益率のテーブル
 # - `output/fig_02_margins_by_company.png`: 企業別利益率の棒グラフ
